@@ -1,0 +1,77 @@
+"""FastAPI application for the AI orchestrator."""
+
+import logging
+import time
+from contextlib import asynccontextmanager
+from typing import AsyncIterator
+
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+
+from orchestrator.api.routes import router as api_router
+from orchestrator.config import settings
+
+logger = logging.getLogger(__name__)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    """Application lifespan events."""
+    # Startup
+    logger.info("Starting AI Orchestrator API...")
+    yield
+    # Shutdown
+    logger.info("Shutting down AI Orchestrator API...")
+
+
+def create_app() -> FastAPI:
+    """Create and configure the FastAPI application."""
+    app = FastAPI(
+        title="Local AI Orchestrator",
+        description="Dynamic AI model routing with benchmark-driven selection",
+        version="0.1.0",
+        lifespan=lifespan,
+    )
+
+    # CORS middleware
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # Request timing middleware
+    @app.middleware("http")
+    async def add_timing_header(request: Request, call_next):
+        start_time = time.perf_counter()
+        response = await call_next(request)
+        process_time = (time.perf_counter() - start_time) * 1000
+        response.headers["X-Process-Time-Ms"] = f"{process_time:.2f}"
+        return response
+
+    # Include API routes
+    app.include_router(api_router, prefix="/v1")
+
+    # Health check
+    @app.get("/health")
+    async def health_check():
+        return {"status": "healthy", "version": "0.1.0"}
+
+    # Root redirect
+    @app.get("/")
+    async def root():
+        return {
+            "name": "Local AI Orchestrator",
+            "version": "0.1.0",
+            "docs": "/docs",
+            "openapi": "/openapi.json",
+        }
+
+    return app
+
+
+# Create app instance
+app = create_app()
