@@ -18,6 +18,20 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+# Import model service for real data
+from orchestrator.api.model_service import get_model_service
+
+
+def get_models() -> list:
+    """Get model data - uses real OpenRouter data with cache."""
+    service = get_model_service()
+    models = service.get_models()
+    if models:
+        return models
+    # Fallback to mock data if service fails
+    return get_mock_models()
+
+
 # --- Request/Response Models ---
 
 class Message(BaseModel):
@@ -187,7 +201,7 @@ async def create_chat_completion(request: ChatCompletionRequest):
     # Route to best model
     scorer = CompositeScorer()
     routing_router = Router(scorer=scorer, default_profile=request.routing_profile)
-    models = get_mock_models()
+    models = get_models()  # Uses real OpenRouter data
     
     if request.model == "auto":
         result = routing_router.route(models, profile)
