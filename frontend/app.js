@@ -670,5 +670,119 @@ document.addEventListener('DOMContentLoaded', () => {
     if (analyticsPeriod) {
         analyticsPeriod.addEventListener('change', loadAnalytics);
     }
+    
+    // Initialize custom model modal
+    initAddModelModal();
 });
 
+// Custom Model Modal
+function initAddModelModal() {
+    const modal = document.getElementById('addModelModal');
+    const addBtn = document.getElementById('addModelBtn');
+    const closeBtn = document.getElementById('closeModalBtn');
+    const cancelBtn = document.getElementById('cancelModalBtn');
+    const form = document.getElementById('addModelForm');
+    
+    if (!modal || !addBtn) return;
+    
+    // Open modal
+    addBtn.addEventListener('click', () => {
+        modal.classList.add('active');
+    });
+    
+    // Close modal
+    const closeModal = () => {
+        modal.classList.remove('active');
+        form.reset();
+    };
+    
+    closeBtn?.addEventListener('click', closeModal);
+    cancelBtn?.addEventListener('click', closeModal);
+    
+    // Close on overlay click
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+    
+    // Form submission
+    form?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (DEMO_MODE) {
+            alert('Custom models require the API to be running.\nStart the API with: python -m uvicorn orchestrator.api.app:app --port 8080');
+            return;
+        }
+        
+        const formData = new FormData(form);
+        const modelData = {
+            model_name: formData.get('model_name'),
+            cost_per_million: parseFloat(formData.get('cost_per_million')) || 0,
+            latency_ms: formData.get('latency_ms') ? parseFloat(formData.get('latency_ms')) : null,
+            context_length: formData.get('context_length') ? parseInt(formData.get('context_length')) : null,
+            quality_rating: formData.get('quality_rating') ? parseFloat(formData.get('quality_rating')) : null,
+        };
+        
+        try {
+            const response = await fetch(`${API_BASE}/v1/models/custom`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(modelData),
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                closeModal();
+                showNotification(`Model "${modelData.model_name}" added successfully!`, 'success');
+                // Refresh rankings to show new model
+                loadDashboard();
+            } else {
+                showNotification(result.detail || 'Failed to add model', 'error');
+            }
+        } catch (error) {
+            console.error('Error adding model:', error);
+            showNotification('Failed to add model. Is the API running?', 'error');
+        }
+    });
+}
+
+// Simple notification function
+function showNotification(message, type = 'info') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()">&times;</button>
+    `;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 16px;
+        border-radius: 8px;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        z-index: 2000;
+        animation: slideIn 0.2s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.2s ease';
+        setTimeout(() => notification.remove(), 200);
+    }, 4000);
+}

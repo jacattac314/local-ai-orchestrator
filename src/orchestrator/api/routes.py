@@ -353,6 +353,91 @@ async def list_models():
     }
 
 
+# --- Custom Model Management ---
+
+class CustomModelRequest(BaseModel):
+    """Request to add a custom model."""
+    model_name: str = Field(..., description="Unique model ID (e.g., 'ollama/llama3')")
+    cost_per_million: float = Field(..., ge=0, description="Cost per million tokens")
+    latency_ms: float | None = Field(None, ge=0, description="Average latency in ms")
+    context_length: int | None = Field(None, ge=1, description="Max context window")
+    quality_rating: float | None = Field(None, ge=0, le=2000, description="Quality/ELO rating")
+
+
+class CustomModelResponse(BaseModel):
+    """Response for custom model operations."""
+    success: bool
+    model_name: str
+    message: str
+
+
+@router.post("/models/custom", response_model=CustomModelResponse)
+async def add_custom_model(request: CustomModelRequest):
+    """
+    Add a custom model to the routing system.
+    
+    Use this to add local models (Ollama, LM Studio) or other models not in OpenRouter.
+    """
+    service = get_model_service()
+    
+    try:
+        service.add_custom_model(
+            model_name=request.model_name,
+            cost_blended=request.cost_per_million,
+            latency_p90=request.latency_ms,
+            context_length=request.context_length,
+            elo_rating=request.quality_rating,
+        )
+        return CustomModelResponse(
+            success=True,
+            model_name=request.model_name,
+            message=f"Model '{request.model_name}' added successfully",
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.get("/models/custom")
+async def list_custom_models():
+    """List all custom models added by the user."""
+    service = get_model_service()
+    custom_models = service.list_custom_models()
+    
+    return {
+        "object": "list",
+        "count": len(custom_models),
+        "data": [
+            {
+                "id": m.model_name,
+                "object": "custom_model",
+                "cost_per_million": m.cost_blended,
+                "latency_ms": m.latency_p90,
+                "context_length": m.context_length,
+                "quality_rating": m.elo_rating,
+            }
+            for m in custom_models
+        ],
+    }
+
+
+@router.delete("/models/custom/{model_name:path}", response_model=CustomModelResponse)
+async def remove_custom_model(model_name: str):
+    """Remove a custom model by name."""
+    service = get_model_service()
+    
+    if service.remove_custom_model(model_name):
+        return CustomModelResponse(
+            success=True,
+            model_name=model_name,
+            message=f"Model '{model_name}' removed successfully",
+        )
+    else:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Custom model '{model_name}' not found",
+        )
+
+
 @router.get("/routing_profiles")
 async def get_routing_profiles_dict():
     """Get routing profiles as a dictionary (for frontend compatibility)."""

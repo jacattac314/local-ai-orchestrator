@@ -276,7 +276,16 @@
             <div class="panel rankings-panel">
               <div class="panel-header">
                 <h2>Model Rankings</h2>
-                <span class="badge">Top 10</span>
+                <div class="panel-actions">
+                  <span class="badge">Top 10</span>
+                  <button class="btn btn-sm btn-primary" id="addModelBtn" title="Add Custom Model">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Add Model
+                  </button>
+                </div>
               </div>
               <div class="rankings-list" id="rankingsList">
                 <div class="loading-skeleton">
@@ -636,6 +645,48 @@
           </div>
         </div>
       </main>
+    </div>
+    <!-- Add Model Modal -->
+    <div class="modal-overlay" id="addModelModal">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>Add Custom Model</h3>
+          <button class="modal-close" id="closeModalBtn" aria-label="Close modal">&times;</button>
+        </div>
+        <form id="addModelForm">
+          <div class="form-group">
+            <label for="modelName">Model Name *</label>
+            <input type="text" id="modelName" name="model_name" required placeholder="e.g., ollama/llama3 or local/my-model">
+            <small>Unique identifier for your model</small>
+          </div>
+          <div class="form-group">
+            <label for="costPerMillion">Cost per Million Tokens ($) *</label>
+            <input type="number" id="costPerMillion" name="cost_per_million" required step="0.01" min="0" value="0" placeholder="0.00">
+            <small>Set to 0 for free/local models</small>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="latencyMs">Latency (ms)</label>
+              <input type="number" id="latencyMs" name="latency_ms" step="1" min="0" placeholder="100">
+              <small>Average response time</small>
+            </div>
+            <div class="form-group">
+              <label for="contextLength">Context Length</label>
+              <input type="number" id="contextLength" name="context_length" step="1" min="1" placeholder="8192">
+              <small>Max tokens</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="qualityRating">Quality Rating (0-2000)</label>
+            <input type="number" id="qualityRating" name="quality_rating" step="1" min="0" max="2000" placeholder="1200">
+            <small>Optional ELO-style quality score</small>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+            <button type="submit" class="btn btn-primary">Add Model</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script src="app.js"></script>
