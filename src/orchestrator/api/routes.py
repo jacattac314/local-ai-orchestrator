@@ -296,7 +296,7 @@ async def get_model_rankings(
         raise HTTPException(status_code=400, detail=f"Unknown profile: {profile}")
     
     scorer = CompositeScorer()
-    models = get_mock_models()
+    models = get_models()  # Uses real OpenRouter data
     ranked = scorer.rank_models(models, routing_profile, limit=limit)
     
     rankings = [
@@ -339,7 +339,7 @@ async def get_routing_profiles():
 @router.get("/models")
 async def list_models():
     """List available models."""
-    models = get_mock_models()
+    models = get_models()  # Uses real OpenRouter data
     return {
         "object": "list",
         "data": [

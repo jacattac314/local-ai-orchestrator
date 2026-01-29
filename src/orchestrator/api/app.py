@@ -5,6 +5,10 @@ import time
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
