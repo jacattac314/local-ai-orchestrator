@@ -111,6 +111,17 @@ class Orchestrator:
         )
         logger.info(f"OpenRouter sync job registered ({settings.openrouter_sync_interval}m interval)")
 
+        # Register data pruning job (T-040)
+        from orchestrator.resilience import default_data_pruner
+        default_data_pruner.set_db_manager(self.db_manager)
+        self.scheduler.add_job(
+            job_id="data_pruning",
+            func=default_data_pruner.run_all,
+            interval_minutes=settings.data_pruning_interval,
+            run_immediately=False,  # Don't prune on startup
+        )
+        logger.info(f"Data pruning job registered ({settings.data_pruning_interval}m interval)")
+
         # Start scheduler
         self.scheduler.start()
         logger.info("Scheduler started")

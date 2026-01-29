@@ -44,6 +44,15 @@ class Settings(BaseSettings):
     api_host: str = "0.0.0.0"
     api_port: int = 8000
 
+    # Security (T-037, T-038)
+    api_key: str | None = None  # Optional API authentication
+    allowed_domains: list[str] = []  # URL validation allowlist (empty = allow all external)
+
+    # Resilience (T-039, T-040)
+    offline_mode_enabled: bool = True  # Enable offline cache fallback
+    metric_retention_days: int = 30  # Days to keep metrics before pruning
+    data_pruning_interval: int = 1440  # Run pruning job every 24 hours (minutes)
+
     @property
     def data_dir(self) -> Path:
         """Get the data directory path."""

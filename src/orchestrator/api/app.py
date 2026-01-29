@@ -43,6 +43,12 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    # API key authentication middleware (optional)
+    if settings.api_key:
+        from orchestrator.security import ApiKeyMiddleware
+        app.add_middleware(ApiKeyMiddleware, api_key=settings.api_key)
+        logger.info("API key authentication enabled")
+
     # Request timing middleware
     @app.middleware("http")
     async def add_timing_header(request: Request, call_next):
