@@ -9,6 +9,7 @@ from orchestrator.routing.normalizers import (
 from orchestrator.routing.profiles import RoutingProfile, BUILTIN_PROFILES
 from orchestrator.routing.scorer import CompositeScorer
 from orchestrator.routing.router import Router
+from orchestrator.routing.complexity import ComplexityClassifier, ComplexityLevel
 
 __all__ = [
     "QualityNormalizer",
@@ -19,4 +20,7 @@ __all__ = [
     "BUILTIN_PROFILES",
     "CompositeScorer",
     "Router",
+    "ComplexityClassifier",
+    "ComplexityLevel",
 ]
+

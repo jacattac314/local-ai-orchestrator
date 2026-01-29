@@ -58,3 +58,8 @@ ignore_missing_imports = true
 testpaths = ["tests"]
 asyncio_mode = "auto"
 addopts = "-v --cov=src/orchestrator --cov-report=term-missing"
+markers = [
+    "canary: fast health check tests for CI/CD",
+    "integration: end-to-end pipeline tests",
+    "performance: benchmark and throughput tests",
+]

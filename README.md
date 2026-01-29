@@ -7,8 +7,11 @@ Dynamic AI model routing with benchmark ingestion from OpenRouter, LMSYS, and Hu
 - **Multi-source Benchmark Ingestion**: Fetches model data from OpenRouter, LMSYS Arena, and HuggingFace
 - **Entity Resolution**: Matches models across sources using fuzzy matching
 - **Dynamic Routing**: Routes requests based on quality, latency, and cost profiles
+- **Complexity-Aware Routing**: Auto-adjusts model selection based on prompt difficulty
 - **Fallback Handling**: Automatic retry with next-ranked model on failures
 - **Circuit Breaker**: Disables failing models with cooldown
+- **Security**: URL validation (SSRF protection) and API key authentication
+- **Resilience**: Offline cache fallback and automatic data pruning
 
 ## Quick Start
 
@@ -21,36 +24,76 @@ cp .env.example .env
 # Edit .env with your API keys
 
 # Run the server
-make run
-```
-
-## Development
-
-```bash
-# Format code
-make format
-
-# Run lints
-make lint
-
-# Run tests
-make test
+poetry run uvicorn orchestrator.api:app --reload
 ```
 
 ## API Endpoints
 
-- `POST /v1/chat/completions` - OpenAI-compatible chat endpoint with routing
-- `GET /v1/models/ranked` - Get ranked models by profile
-- `GET /health` - Health check
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/chat/completions` | POST | OpenAI-compatible chat with auto-routing |
+| `/v1/models/rankings` | GET | Get ranked models by profile |
+| `/v1/models` | GET | List available models |
+| `/v1/routing_profiles` | GET | List routing profiles |
+| `/health` | GET | Health check |
+
+## Routing Profiles
+
+| Profile | Best For |
+|---------|----------|
+| `quality` | Maximum accuracy, creative tasks |
+| `balanced` | General use (default) |
+| `speed` | Low latency, simple queries |
+| `budget` | Cost optimization |
+| `long_context` | Large documents |
 
 ## Configuration
 
-Set these environment variables:
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `OPENROUTER_API_KEY` | OpenRouter API key | Required |
+| `DATABASE_URL` | Database connection | `sqlite:///data/orchestrator.db` |
+| `ORCHESTRATOR_API_KEY` | API authentication key | None (disabled) |
+| `ORCHESTRATOR_ALLOWED_DOMAINS` | URL allowlist | Empty (all external) |
+| `ORCHESTRATOR_METRIC_RETENTION_DAYS` | Days to keep metrics | 30 |
+| `ORCHESTRATOR_OFFLINE_MODE_ENABLED` | Enable cache fallback | true |
 
-| Variable | Description |
-|----------|-------------|
-| `OPENROUTER_API_KEY` | OpenRouter API key |
-| `DATABASE_URL` | Database path (default: `sqlite:///data/orchestrator.db`) |
+## Development
+
+```bash
+# Run all tests
+poetry run pytest
+
+# Run canary tests (fast CI/CD)
+poetry run pytest -m canary
+
+# Run integration tests
+poetry run pytest -m integration
+
+# Run performance benchmarks
+poetry run pytest -m performance
+
+# Format and lint
+poetry run ruff check src/ tests/
+poetry run black src/ tests/
+```
+
+## Architecture
+
+```
+src/orchestrator/
+├── adapters/         # OpenRouter, LMSYS, HuggingFace adapters
+├── api/              # FastAPI application and routes
+├── db/               # SQLAlchemy models and manager
+├── http/             # HTTP client with retry logic
+├── resolution/       # Entity matching across sources
+├── routing/          # Scoring, profiles, router, complexity
+├── scheduler/        # APScheduler background jobs
+├── config.py         # Pydantic settings
+├── security.py       # URL validation, API key auth
+├── resilience.py     # Offline cache, data pruning
+└── main.py           # Application entry point
+```
 
 ## License
 
