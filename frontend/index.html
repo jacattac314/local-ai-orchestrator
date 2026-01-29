@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Orchestrator | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- Animated Background -->
+      <div class="bg-gradient"></div>
+      <div class="bg-grid"></div>
+
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 2L2 7l10 5 10-5-10-5z" />
+              <path d="M2 17l10 5 10-5" />
+              <path d="M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <span class="logo-text">Orchestrator</span>
+        </div>
+
+        <nav class="nav">
+          <a href="#" class="nav-item active" data-page="dashboard">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            Dashboard
+          </a>
+          <a href="#" class="nav-item" data-page="models">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+              />
+            </svg>
+            Models
+          </a>
+          <a href="#" class="nav-item" data-page="routing">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 6v6l4 2" />
+            </svg>
+            Routing
+          </a>
+          <a href="#" class="nav-item" data-page="playground">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+              />
+            </svg>
+            Playground
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>System Online</span>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main">
+        <!-- Header -->
+        <header class="header">
+          <div class="header-left">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Monitor your AI routing infrastructure</p>
+          </div>
+          <div class="header-right">
+            <button class="btn btn-ghost" id="refreshBtn">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M23 4v6h-6" />
+                <path d="M1 20v-6h6" />
+                <path
+                  d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
+                />
+              </svg>
+              Refresh
+            </button>
+            <div class="profile-badge">
+              <span class="profile-label">Active Profile</span>
+              <select id="activeProfile" class="profile-select">
+                <option value="balanced">Balanced</option>
+                <option value="quality">Quality</option>
+                <option value="speed">Speed</option>
+                <option value="budget">Budget</option>
+              </select>
+            </div>
+          </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <div class="content" id="dashboardPage">
+          <!-- Stats Grid -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon blue">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+                  />
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value" id="totalModels">--</span>
+                <span class="stat-label">Active Models</span>
+              </div>
+              <div class="stat-trend up">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M23 6l-9.5 9.5-5-5L1 18" />
+                </svg>
+                +12%
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon green">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value" id="healthyCount">--</span>
+                <span class="stat-label">Healthy Circuits</span>
+              </div>
+              <div class="stat-trend up">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M23 6l-9.5 9.5-5-5L1 18" />
+                </svg>
+                100%
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon purple">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value" id="avgLatency">--</span>
+                <span class="stat-label">Avg Latency</span>
+              </div>
+              <div class="stat-trend down">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M23 18l-9.5-9.5-5 5L1 6" />
+                </svg>
+                -8ms
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon orange">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="12" y1="1" x2="12" y2="23" />
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value" id="avgCost">--</span>
+                <span class="stat-label">Avg Cost/M</span>
+              </div>
+              <div class="stat-trend down">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M23 18l-9.5-9.5-5 5L1 6" />
+                </svg>
+                -15%
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Grid -->
+          <div class="main-grid">
+            <!-- Rankings Panel -->
+            <div class="panel rankings-panel">
+              <div class="panel-header">
+                <h2>Model Rankings</h2>
+                <span class="badge">Top 10</span>
+              </div>
+              <div class="rankings-list" id="rankingsList">
+                <div class="loading-skeleton">
+                  <div class="skeleton-row"></div>
+                  <div class="skeleton-row"></div>
+                  <div class="skeleton-row"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profiles Panel -->
+            <div class="panel profiles-panel">
+              <div class="panel-header">
+                <h2>Routing Profiles</h2>
+              </div>
+              <div class="profiles-grid" id="profilesGrid">
+                <div class="loading-skeleton">
+                  <div class="skeleton-card"></div>
+                  <div class="skeleton-card"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Panel -->
+          <div class="panel activity-panel">
+            <div class="panel-header">
+              <h2>Recent Activity</h2>
+              <button class="btn btn-sm btn-ghost">View All</button>
+            </div>
+            <div class="activity-list" id="activityList">
+              <div class="activity-item">
+                <div class="activity-icon success">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+                <div class="activity-content">
+                  <span class="activity-text">Model sync completed</span>
+                  <span class="activity-time">2 min ago</span>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon info">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </div>
+                <div class="activity-content">
+                  <span class="activity-text"
+                    >New model added: gpt-4-turbo</span
+                  >
+                  <span class="activity-time">15 min ago</span>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon warning">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                    />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                </div>
+                <div class="activity-content">
+                  <span class="activity-text"
+                    >Circuit breaker triggered for model #42</span
+                  >
+                  <span class="activity-time">1 hour ago</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Models Page -->
+        <div class="content hidden" id="modelsPage">
+          <div class="panel">
+            <div class="panel-header">
+              <h2>All Models</h2>
+              <input
+                type="search"
+                class="search-input"
+                placeholder="Search models..."
+                id="modelSearch"
+              />
+            </div>
+            <div class="models-table-container">
+              <table class="models-table" id="modelsTable">
+                <thead>
+                  <tr>
+                    <th>Model</th>
+                    <th>Provider</th>
+                    <th>Quality</th>
+                    <th>Latency</th>
+                    <th>Cost/M</th>
+                    <th>Context</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="modelsTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Routing Page -->
+        <div class="content hidden" id="routingPage">
+          <div class="routing-grid">
+            <div class="panel">
+              <div class="panel-header">
+                <h2>Profile Configuration</h2>
+              </div>
+              <div class="profile-config" id="profileConfig">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-header">
+                <h2>Weight Visualization</h2>
+              </div>
+              <div class="weights-chart" id="weightsChart">
+                <!-- Chart rendered here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Playground Page -->
+        <div class="content hidden" id="playgroundPage">
+          <div class="playground-container">
+            <div class="panel playground-input">
+              <div class="panel-header">
+                <h2>Test Prompt</h2>
+              </div>
+              <textarea
+                class="prompt-input"
+                id="promptInput"
+                placeholder="Enter your prompt to test routing..."
+              ></textarea>
+              <div class="playground-controls">
+                <select id="testProfile" class="profile-select">
+                  <option value="balanced">Balanced</option>
+                  <option value="quality">Quality</option>
+                  <option value="speed">Speed</option>
+                  <option value="budget">Budget</option>
+                </select>
+                <button class="btn btn-primary" id="analyzeBtn">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <polygon points="5 3 19 12 5 21 5 3" />
+                  </svg>
+                  Analyze
+                </button>
+              </div>
+            </div>
+            <div class="panel playground-output">
+              <div class="panel-header">
+                <h2>Routing Decision</h2>
+              </div>
+              <div class="routing-result" id="routingResult">
+                <div class="empty-state">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  >
+                    <path
+                      d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+                    />
+                  </svg>
+                  <p>Enter a prompt to see routing analysis</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
