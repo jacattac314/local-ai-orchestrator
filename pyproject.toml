@@ -1,0 +1,60 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "local-ai-orchestrator"
+version = "0.1.0"
+description = "Dynamic AI model routing with benchmark ingestion from OpenRouter, LMSYS, and HuggingFace"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "orchestrator", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+sqlalchemy = "^2.0"
+apscheduler = "^3.10"
+httpx = "^0.27"
+pydantic = "^2.0"
+pydantic-settings = "^2.0"
+python-dotenv = "^1.0"
+fastapi = "^0.109"
+uvicorn = {extras = ["standard"], version = "^0.27"}
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-cov = "^4.1"
+pytest-asyncio = "^0.23"
+ruff = "^0.2"
+black = "^24.0"
+mypy = "^1.8"
+pre-commit = "^3.6"
+respx = "^0.20"
+
+[tool.poetry.scripts]
+orchestrator = "orchestrator.main:main"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.ruff.isort]
+known-first-party = ["orchestrator"]
+
+[tool.black]
+target-version = ["py311"]
+line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-v --cov=src/orchestrator --cov-report=term-missing"
