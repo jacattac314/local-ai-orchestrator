@@ -3,10 +3,19 @@
  * Interactive frontend for the routing API
  */
 
-// Auto-detect API URL: use /api proxy in Docker, direct URL for local dev
-const API_BASE = window.location.hostname === 'localhost' && window.location.port === ''
-    ? '/api'  // Docker (proxied through Nginx)
-    : 'http://localhost:8000';  // Local development
+// API URL Configuration
+// - GitHub Pages: Uses demo mode (no live API)
+// - Docker: Uses /api proxy
+// - Local dev: Uses localhost:8000
+const isGitHubPages = window.location.hostname.includes('github.io');
+const isDocker = window.location.port === '3000' || window.location.port === '';
+const API_BASE = isGitHubPages 
+    ? null  // Demo mode - no live API
+    : isDocker 
+        ? '/api' 
+        : 'http://localhost:8000';
+
+const DEMO_MODE = API_BASE === null;
 
 // State
 const state = {
@@ -108,8 +117,58 @@ function initEventListeners() {
     }
 }
 
+// Demo data for GitHub Pages (no live API needed)
+const DEMO_DATA = {
+    health: { status: 'healthy', model_count: 156, db_status: 'connected' },
+    rankings: {
+        rankings: [
+            { model_id: 1, model_name: 'openai/gpt-4-turbo', composite_score: 0.94, quality_score: 0.98, latency_score: 0.85, cost_score: 0.72 },
+            { model_id: 2, model_name: 'anthropic/claude-3-opus', composite_score: 0.91, quality_score: 0.96, latency_score: 0.82, cost_score: 0.68 },
+            { model_id: 3, model_name: 'anthropic/claude-3-sonnet', composite_score: 0.88, quality_score: 0.92, latency_score: 0.88, cost_score: 0.78 },
+            { model_id: 4, model_name: 'openai/gpt-4o', composite_score: 0.86, quality_score: 0.94, latency_score: 0.90, cost_score: 0.65 },
+            { model_id: 5, model_name: 'google/gemini-1.5-pro', composite_score: 0.84, quality_score: 0.90, latency_score: 0.85, cost_score: 0.72 },
+            { model_id: 6, model_name: 'meta-llama/llama-3-70b', composite_score: 0.82, quality_score: 0.85, latency_score: 0.80, cost_score: 0.92 },
+            { model_id: 7, model_name: 'anthropic/claude-3-haiku', composite_score: 0.79, quality_score: 0.82, latency_score: 0.95, cost_score: 0.88 },
+            { model_id: 8, model_name: 'openai/gpt-3.5-turbo', composite_score: 0.75, quality_score: 0.78, latency_score: 0.92, cost_score: 0.95 },
+            { model_id: 9, model_name: 'mistral/mistral-large', composite_score: 0.73, quality_score: 0.80, latency_score: 0.82, cost_score: 0.85 },
+            { model_id: 10, model_name: 'cohere/command-r-plus', composite_score: 0.70, quality_score: 0.76, latency_score: 0.78, cost_score: 0.88 },
+        ]
+    },
+    profiles: {
+        profiles: {
+            balanced: { quality_weight: 0.4, latency_weight: 0.3, cost_weight: 0.3 },
+            quality: { quality_weight: 0.7, latency_weight: 0.2, cost_weight: 0.1, min_quality: 0.8 },
+            speed: { quality_weight: 0.2, latency_weight: 0.6, cost_weight: 0.2, max_latency_ms: 500 },
+            budget: { quality_weight: 0.2, latency_weight: 0.2, cost_weight: 0.6, max_cost_per_million: 5.0 },
+            long_context: { quality_weight: 0.3, latency_weight: 0.2, cost_weight: 0.2 },
+        }
+    },
+    models: {
+        models: [
+            { name: 'openai/gpt-4-turbo', quality_score: 0.98, latency_ms: 450, cost_per_million: 10.0, context_length: 128000 },
+            { name: 'anthropic/claude-3-opus', quality_score: 0.96, latency_ms: 520, cost_per_million: 15.0, context_length: 200000 },
+            { name: 'anthropic/claude-3-sonnet', quality_score: 0.92, latency_ms: 380, cost_per_million: 3.0, context_length: 200000 },
+            { name: 'openai/gpt-4o', quality_score: 0.94, latency_ms: 320, cost_per_million: 5.0, context_length: 128000 },
+            { name: 'google/gemini-1.5-pro', quality_score: 0.90, latency_ms: 400, cost_per_million: 3.5, context_length: 1000000 },
+            { name: 'meta-llama/llama-3-70b', quality_score: 0.85, latency_ms: 480, cost_per_million: 0.9, context_length: 8192 },
+            { name: 'anthropic/claude-3-haiku', quality_score: 0.82, latency_ms: 180, cost_per_million: 0.25, context_length: 200000 },
+            { name: 'openai/gpt-3.5-turbo', quality_score: 0.78, latency_ms: 200, cost_per_million: 0.5, context_length: 16384 },
+        ]
+    }
+};
+
 // API Calls
 async function fetchAPI(endpoint) {
+    // Demo mode - return static data
+    if (DEMO_MODE) {
+        await new Promise(r => setTimeout(r, 300)); // Simulate network delay
+        if (endpoint.includes('/health')) return DEMO_DATA.health;
+        if (endpoint.includes('/rankings')) return DEMO_DATA.rankings;
+        if (endpoint.includes('/routing_profiles')) return DEMO_DATA.profiles;
+        if (endpoint.includes('/models')) return DEMO_DATA.models;
+        return null;
+    }
+    
     try {
         const response = await fetch(`${API_BASE}${endpoint}`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -121,6 +180,11 @@ async function fetchAPI(endpoint) {
 }
 
 async function postAPI(endpoint, data) {
+    if (DEMO_MODE) {
+        await new Promise(r => setTimeout(r, 300));
+        return DEMO_DATA.rankings; // Return demo rankings for playground
+    }
+    
     try {
         const response = await fetch(`${API_BASE}${endpoint}`, {
             method: 'POST',
