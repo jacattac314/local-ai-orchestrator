@@ -48,6 +48,7 @@ function initElements() {
         dashboard: document.getElementById('dashboardPage'),
         models: document.getElementById('modelsPage'),
         routing: document.getElementById('routingPage'),
+        analytics: document.getElementById('analyticsPage'),
         playground: document.getElementById('playgroundPage'),
     };
     elements.navItems = document.querySelectorAll('.nav-item');
@@ -82,6 +83,7 @@ function navigateTo(page) {
         dashboard: 'Dashboard',
         models: 'Models',
         routing: 'Routing',
+        analytics: 'Analytics',
         playground: 'Playground',
     };
     elements.pageTitle.textContent = titles[page];
@@ -91,6 +93,7 @@ function navigateTo(page) {
     // Load page data
     if (page === 'models') loadModels();
     if (page === 'routing') loadRouting();
+    if (page === 'analytics') loadAnalytics();
 }
 
 function initEventListeners() {
@@ -557,3 +560,74 @@ function showToast(message, type = 'success') {
 
 // Make selectProfile available globally
 window.selectProfile = selectProfile;
+
+// Analytics Page
+async function loadAnalytics() {
+    const period = document.getElementById('analyticsPeriod')?.value || '24h';
+    
+    // In demo mode, use static data
+    if (DEMO_MODE) {
+        document.getElementById('totalRequests').textContent = '1,247';
+        document.getElementById('totalTokens').textContent = '2.3M';
+        document.getElementById('estimatedCost').textContent = '$45.80';
+        document.getElementById('analyticsLatency').textContent = '312ms';
+        return;
+    }
+    
+    // Fetch real analytics data
+    const summary = await fetchAPI(`/v1/analytics/summary?period=${period}`);
+    
+    if (summary) {
+        document.getElementById('totalRequests').textContent = formatNumber(summary.total_requests);
+        document.getElementById('totalTokens').textContent = formatNumber(summary.total_tokens);
+        document.getElementById('estimatedCost').textContent = `$${summary.estimated_cost.toFixed(2)}`;
+        document.getElementById('analyticsLatency').textContent = `${Math.round(summary.avg_latency_ms)}ms`;
+        
+        // Update model breakdown if available
+        if (summary.top_models && summary.top_models.length > 0) {
+            const breakdownEl = document.getElementById('modelBreakdown');
+            const total = summary.top_models.reduce((a, m) => a + m.count, 0);
+            
+            breakdownEl.innerHTML = summary.top_models.slice(0, 5).map((model, idx) => {
+                const percent = total > 0 ? ((model.count / total) * 100).toFixed(0) : 0;
+                const colors = ['var(--accent-blue)', 'var(--accent-purple)', 'var(--accent-green)', 'var(--accent-orange)', 'var(--text-muted)'];
+                return `
+                    <div class="breakdown-item">
+                        <div class="breakdown-label">
+                            <span class="breakdown-name">${formatModelName(model.model)}</span>
+                            <span class="breakdown-percent">${percent}%</span>
+                        </div>
+                        <div class="breakdown-bar">
+                            <div class="breakdown-fill" style="width: ${percent}%; background: ${colors[idx % colors.length]};"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Update profile usage if available
+        if (summary.requests_by_profile) {
+            const profileEl = document.getElementById('profileUsage');
+            const total = Object.values(summary.requests_by_profile).reduce((a, b) => a + b, 0);
+            
+            profileEl.innerHTML = Object.entries(summary.requests_by_profile).map(([name, count]) => {
+                const percent = total > 0 ? ((count / total) * 100).toFixed(0) : 0;
+                return `
+                    <div class="profile-usage-card">
+                        <div class="profile-usage-value">${percent}%</div>
+                        <div class="profile-usage-name">${name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+    }
+}
+
+// Add event listener for analytics period change
+document.addEventListener('DOMContentLoaded', () => {
+    const analyticsPeriod = document.getElementById('analyticsPeriod');
+    if (analyticsPeriod) {
+        analyticsPeriod.addEventListener('change', loadAnalytics);
+    }
+});
+

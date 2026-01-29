@@ -1080,3 +1080,115 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Analytics Page */
+.usage-chart {
+  padding: var(--space-lg);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-placeholder {
+  width: 100%;
+  text-align: center;
+}
+
+.mini-chart {
+  width: 100%;
+  height: 120px;
+  margin-bottom: var(--space-md);
+}
+
+.chart-note {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.model-breakdown {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.breakdown-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.breakdown-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.breakdown-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.breakdown-percent {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.breakdown-bar {
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.breakdown-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.profile-usage {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+  padding: var(--space-lg);
+}
+
+.profile-usage-card {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.profile-usage-card:hover {
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+}
+
+.profile-usage-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--space-xs);
+}
+
+.profile-usage-name {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+@media (max-width: 900px) {
+  .profile-usage {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+

@@ -76,6 +76,19 @@
             </svg>
             Routing
           </a>
+          <a href="#" class="nav-item" data-page="analytics">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 20V10" />
+              <path d="M12 20V4" />
+              <path d="M6 20v-6" />
+            </svg>
+            Analytics
+          </a>
           <a href="#" class="nav-item" data-page="playground">
             <svg
               viewBox="0 0 24 24"
@@ -407,6 +420,162 @@
               </div>
               <div class="weights-chart" id="weightsChart">
                 <!-- Chart rendered here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Page -->
+        <div class="content hidden" id="analyticsPage">
+          <!-- Analytics Stats -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value" id="totalRequests">0</span>
+                <span class="stat-label">Total Requests</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value" id="totalTokens">0</span>
+                <span class="stat-label">Total Tokens</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon orange">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23" />
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value" id="estimatedCost">$0.00</span>
+                <span class="stat-label">Estimated Cost</span>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg>
+              </div>
+              <div class="stat-content">
+                <span class="stat-value" id="analyticsLatency">0ms</span>
+                <span class="stat-label">Avg Latency</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="main-grid">
+            <!-- Usage Chart -->
+            <div class="panel">
+              <div class="panel-header">
+                <h2>Request Volume</h2>
+                <select id="analyticsPeriod" class="profile-select">
+                  <option value="1h">Last Hour</option>
+                  <option value="24h" selected>Last 24 Hours</option>
+                  <option value="7d">Last 7 Days</option>
+                  <option value="30d">Last 30 Days</option>
+                </select>
+              </div>
+              <div class="usage-chart" id="usageChart">
+                <div class="chart-placeholder">
+                  <svg viewBox="0 0 200 100" preserveAspectRatio="none" class="mini-chart">
+                    <polyline
+                      fill="none"
+                      stroke="var(--accent-blue)"
+                      stroke-width="2"
+                      points="0,80 20,75 40,60 60,65 80,40 100,45 120,30 140,35 160,20 180,25 200,15"
+                    />
+                  </svg>
+                  <p class="chart-note">Usage data will appear here when requests are made</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Model Usage Breakdown -->
+            <div class="panel">
+              <div class="panel-header">
+                <h2>Model Distribution</h2>
+              </div>
+              <div class="model-breakdown" id="modelBreakdown">
+                <div class="breakdown-item">
+                  <div class="breakdown-label">
+                    <span class="breakdown-name">gpt-4-turbo</span>
+                    <span class="breakdown-percent">42%</span>
+                  </div>
+                  <div class="breakdown-bar">
+                    <div class="breakdown-fill" style="width: 42%; background: var(--accent-blue);"></div>
+                  </div>
+                </div>
+                <div class="breakdown-item">
+                  <div class="breakdown-label">
+                    <span class="breakdown-name">claude-3-sonnet</span>
+                    <span class="breakdown-percent">28%</span>
+                  </div>
+                  <div class="breakdown-bar">
+                    <div class="breakdown-fill" style="width: 28%; background: var(--accent-purple);"></div>
+                  </div>
+                </div>
+                <div class="breakdown-item">
+                  <div class="breakdown-label">
+                    <span class="breakdown-name">llama-3-70b</span>
+                    <span class="breakdown-percent">18%</span>
+                  </div>
+                  <div class="breakdown-bar">
+                    <div class="breakdown-fill" style="width: 18%; background: var(--accent-green);"></div>
+                  </div>
+                </div>
+                <div class="breakdown-item">
+                  <div class="breakdown-label">
+                    <span class="breakdown-name">Other</span>
+                    <span class="breakdown-percent">12%</span>
+                  </div>
+                  <div class="breakdown-bar">
+                    <div class="breakdown-fill" style="width: 12%; background: var(--text-muted);"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Usage -->
+          <div class="panel">
+            <div class="panel-header">
+              <h2>Requests by Profile</h2>
+            </div>
+            <div class="profile-usage" id="profileUsage">
+              <div class="profile-usage-card">
+                <div class="profile-usage-value">45%</div>
+                <div class="profile-usage-name">balanced</div>
+              </div>
+              <div class="profile-usage-card">
+                <div class="profile-usage-value">25%</div>
+                <div class="profile-usage-name">quality</div>
+              </div>
+              <div class="profile-usage-card">
+                <div class="profile-usage-value">20%</div>
+                <div class="profile-usage-name">speed</div>
+              </div>
+              <div class="profile-usage-card">
+                <div class="profile-usage-value">10%</div>
+                <div class="profile-usage-name">budget</div>
               </div>
             </div>
           </div>

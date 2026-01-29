@@ -337,3 +337,88 @@ async def list_models():
             for m in models
         ],
     }
+
+
+@router.get("/routing_profiles")
+async def get_routing_profiles_dict():
+    """Get routing profiles as a dictionary (for frontend compatibility)."""
+    profiles = {}
+    for name, profile in BUILTIN_PROFILES.items():
+        profiles[name] = {
+            "quality_weight": profile.quality_weight,
+            "latency_weight": profile.latency_weight,
+            "cost_weight": profile.cost_weight,
+            "context_weight": profile.context_weight,
+        }
+        if profile.min_quality:
+            profiles[name]["min_quality"] = profile.min_quality
+        if profile.max_latency_ms:
+            profiles[name]["max_latency_ms"] = profile.max_latency_ms
+        if profile.max_cost_per_million:
+            profiles[name]["max_cost_per_million"] = profile.max_cost_per_million
+    
+    return {"profiles": profiles}
+
+
+# --- Analytics Endpoints ---
+
+@router.get("/analytics/summary")
+async def get_analytics_summary(
+    period: str = Query(default="24h", description="Time period: 1h, 24h, 7d, 30d"),
+):
+    """Get analytics summary for the specified period."""
+    from orchestrator.analytics import default_collector
+    
+    # Parse period to hours
+    period_hours = {
+        "1h": 1,
+        "24h": 24,
+        "7d": 24 * 7,
+        "30d": 24 * 30,
+    }.get(period, 24)
+    
+    summary = default_collector.get_summary(period_hours)
+    return summary
+
+
+@router.get("/analytics/usage")
+async def get_analytics_usage(
+    period: str = Query(default="24h", description="Time period"),
+    bucket: int = Query(default=60, ge=5, le=1440, description="Bucket size in minutes"),
+):
+    """Get time-series usage data."""
+    from orchestrator.analytics import default_collector
+    
+    period_hours = {
+        "1h": 1,
+        "24h": 24,
+        "7d": 24 * 7,
+        "30d": 24 * 30,
+    }.get(period, 24)
+    
+    return {
+        "period": period,
+        "bucket_minutes": bucket,
+        "data": default_collector.get_usage_timeseries(period_hours, bucket),
+    }
+
+
+@router.get("/analytics/models")
+async def get_analytics_models(
+    period: str = Query(default="24h", description="Time period"),
+):
+    """Get per-model usage breakdown."""
+    from orchestrator.analytics import default_collector
+    
+    period_hours = {
+        "1h": 1,
+        "24h": 24,
+        "7d": 24 * 7,
+        "30d": 24 * 30,
+    }.get(period, 24)
+    
+    return {
+        "period": period,
+        "models": default_collector.get_model_breakdown(period_hours),
+    }
+

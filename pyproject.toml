@@ -20,6 +20,8 @@ pydantic-settings = "^2.0"
 python-dotenv = "^1.0"
 fastapi = "^0.109"
 uvicorn = {extras = ["standard"], version = "^0.27"}
+click = "^8.1"
+rich = "^13.7"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"
@@ -33,6 +35,7 @@ respx = "^0.20"
 
 [tool.poetry.scripts]
 orchestrator = "orchestrator.main:main"
+orchestrator-cli = "orchestrator_client.cli:main"
 
 [tool.ruff]
 target-version = "py311"
