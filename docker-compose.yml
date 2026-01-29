@@ -1,0 +1,65 @@
+# =============================================================================
+# Local AI Orchestrator - Docker Compose
+# Production-ready deployment with optional services
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Main API Service
+  # ---------------------------------------------------------------------------
+  orchestrator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-orchestrator
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      - DATA_DIR=/app/data
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - API_KEY=${API_KEY:-}
+      - OFFLINE_MODE_ENABLED=${OFFLINE_MODE_ENABLED:-true}
+    volumes:
+      - orchestrator-data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - orchestrator-net
+
+  # ---------------------------------------------------------------------------
+  # Frontend Static Server (Nginx)
+  # ---------------------------------------------------------------------------
+  frontend:
+    image: nginx:alpine
+    container_name: ai-orchestrator-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      orchestrator:
+        condition: service_healthy
+    networks:
+      - orchestrator-net
+
+# -----------------------------------------------------------------------------
+# Volumes
+# -----------------------------------------------------------------------------
+volumes:
+  orchestrator-data:
+    driver: local
+
+# -----------------------------------------------------------------------------
+# Networks
+# -----------------------------------------------------------------------------
+networks:
+  orchestrator-net:
+    driver: bridge

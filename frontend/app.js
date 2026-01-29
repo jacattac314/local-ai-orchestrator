@@ -3,7 +3,10 @@
  * Interactive frontend for the routing API
  */
 
-const API_BASE = 'http://localhost:8000';
+// Auto-detect API URL: use /api proxy in Docker, direct URL for local dev
+const API_BASE = window.location.hostname === 'localhost' && window.location.port === ''
+    ? '/api'  // Docker (proxied through Nginx)
+    : 'http://localhost:8000';  // Local development
 
 // State
 const state = {
