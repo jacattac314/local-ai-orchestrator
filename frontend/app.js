@@ -4,18 +4,59 @@
  */
 
 // API URL Configuration
-// - GitHub Pages: Uses demo mode (no live API)
-// - Docker: Uses /api proxy
-// - Local dev: Uses localhost:8000
+// Priority: 1. Local API (localhost:8080), 2. Docker proxy, 3. Demo mode
 const isGitHubPages = window.location.hostname.includes('github.io');
-const isDocker = window.location.port === '3000' || window.location.port === '';
-const API_BASE = isGitHubPages 
-    ? null  // Demo mode - no live API
-    : isDocker 
-        ? '/api' 
-        : 'http://localhost:8000';
+const isDocker = window.location.port === '3000' || window.location.pathname.startsWith('/api');
 
-const DEMO_MODE = API_BASE === null;
+// For local development, try the API first
+const LOCAL_API_URL = 'http://localhost:8080';
+const DOCKER_API_URL = '/api';
+
+// Detect which API to use
+let API_BASE = null;
+let DEMO_MODE = true;
+
+// Try to detect live API on load
+async function detectAPI() {
+    if (isGitHubPages) {
+        console.log('Running on GitHub Pages - using demo mode');
+        return null;
+    }
+    
+    if (isDocker) {
+        console.log('Running in Docker - using /api proxy');
+        return DOCKER_API_URL;
+    }
+    
+    // Try local API
+    try {
+        const response = await fetch(LOCAL_API_URL + '/health', { 
+            method: 'GET',
+            mode: 'cors',
+            timeout: 2000 
+        });
+        if (response.ok) {
+            console.log('Local API detected at ' + LOCAL_API_URL);
+            return LOCAL_API_URL;
+        }
+    } catch (e) {
+        console.log('Local API not available, using demo mode');
+    }
+    
+    return null;
+}
+
+// Initialize API detection
+detectAPI().then(url => {
+    API_BASE = url;
+    DEMO_MODE = url === null;
+    console.log('API Mode:', DEMO_MODE ? 'DEMO' : 'LIVE', 'URL:', API_BASE);
+    
+    // Reload data with detected API
+    if (!DEMO_MODE && state.currentPage === 'dashboard') {
+        loadDashboard();
+    }
+});
 
 // State
 const state = {
