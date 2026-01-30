@@ -1,0 +1,63 @@
+---
+name: ✨ Feature Request
+description: Suggest a new feature or enhancement
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement! Please describe your idea below.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve?
+      placeholder: I'm frustrated when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How would you like this to work?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Other approaches you've thought about
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the system does this affect?
+      options:
+        - Routing Engine
+        - API Layer
+        - Adapters (OpenRouter/LMSYS/HuggingFace)
+        - Database / Caching
+        - CLI / SDK
+        - Documentation
+        - Other
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this to you?
+      options:
+        - Nice to have
+        - Would improve my workflow
+        - Blocking my use case
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I'm willing to help implement this feature

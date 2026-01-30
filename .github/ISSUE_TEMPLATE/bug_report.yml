@@ -1,0 +1,87 @@
+---
+name: 🐛 Bug Report
+description: Report a bug or unexpected behavior
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please fill out the sections below.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear description of what the bug is
+      placeholder: When I do X, I expect Y but Z happens instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal steps to reproduce the behavior
+      placeholder: |
+        1. Start the server with `make run`
+        2. Send request to `/v1/chat/completions`
+        3. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Error Messages
+      description: Relevant log output (set LOG_LEVEL=DEBUG)
+      render: shell
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: Which version are you running?
+      options:
+        - v0.1.0 (latest)
+        - main branch
+        - other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deployment
+    attributes:
+      label: Deployment Method
+      options:
+        - Docker Compose
+        - Poetry (local)
+        - Kubernetes
+        - Other
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Python version, database
+      placeholder: |
+        - OS: Ubuntu 22.04
+        - Python: 3.11.5
+        - Database: SQLite
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues for duplicates
+          required: true
+        - label: I have read the [documentation](https://github.com/jacattac314/local-ai-orchestrator/blob/main/docs/ARCHITECTURE.md)
+          required: true

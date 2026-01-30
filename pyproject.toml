@@ -6,7 +6,7 @@ build-backend = "poetry.core.masonry.api"
 name = "local-ai-orchestrator"
 version = "0.1.0"
 description = "Dynamic AI model routing with benchmark ingestion from OpenRouter, LMSYS, and HuggingFace"
-authors = ["Your Name <you@example.com>"]
+authors = ["jacattac314"]
 readme = "README.md"
 packages = [{include = "orchestrator", from = "src"}]
 
