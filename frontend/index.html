@@ -102,6 +102,33 @@
             </svg>
             Playground
           </a>
+          <a href="#" class="nav-item" data-page="local-models">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="4" y="4" width="16" height="16" rx="2" />
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 8v2M12 14v2M8 12h2M14 12h2" />
+            </svg>
+            Local Models
+          </a>
+          <a href="#" class="nav-item" data-page="settings">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+              />
+            </svg>
+            Settings
+          </a>
         </nav>
 
         <div class="sidebar-footer">
@@ -136,6 +163,37 @@
               </svg>
               Refresh
             </button>
+            <!-- Budget Status Widget -->
+            <div
+              class="budget-widget"
+              id="budgetWidget"
+              title="Click to view budget settings"
+            >
+              <div class="budget-widget-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="12" y1="1" x2="12" y2="23" />
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </div>
+              <div class="budget-widget-content">
+                <span class="budget-widget-label">Daily Spend</span>
+                <span class="budget-widget-value" id="budgetWidgetValue"
+                  >$0.00</span
+                >
+              </div>
+              <div class="budget-widget-bar">
+                <div
+                  class="budget-widget-fill"
+                  id="budgetWidgetFill"
+                  style="width: 0%"
+                ></div>
+              </div>
+            </div>
             <div class="profile-badge">
               <span class="profile-label">Active Profile</span>
               <select id="activeProfile" class="profile-select">
@@ -278,8 +336,19 @@
                 <h2>Model Rankings</h2>
                 <div class="panel-actions">
                   <span class="badge">Top 10</span>
-                  <button class="btn btn-sm btn-primary" id="addModelBtn" title="Add Custom Model">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                  <button
+                    class="btn btn-sm btn-primary"
+                    id="addModelBtn"
+                    title="Add Custom Model"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      width="16"
+                      height="16"
+                    >
                       <line x1="12" y1="5" x2="12" y2="19"></line>
                       <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
@@ -440,7 +509,12 @@
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-icon blue">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
                 </svg>
               </div>
@@ -452,7 +526,12 @@
 
             <div class="stat-card">
               <div class="stat-icon green">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <path d="M12 2L2 7l10 5 10-5-10-5z" />
                   <path d="M2 17l10 5 10-5" />
                   <path d="M2 12l10 5 10-5" />
@@ -466,7 +545,12 @@
 
             <div class="stat-card">
               <div class="stat-icon orange">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <line x1="12" y1="1" x2="12" y2="23" />
                   <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
@@ -479,7 +563,12 @@
 
             <div class="stat-card">
               <div class="stat-icon purple">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
                   <circle cx="12" cy="12" r="10" />
                   <path d="M12 6v6l4 2" />
                 </svg>
@@ -505,7 +594,11 @@
               </div>
               <div class="usage-chart" id="usageChart">
                 <div class="chart-placeholder">
-                  <svg viewBox="0 0 200 100" preserveAspectRatio="none" class="mini-chart">
+                  <svg
+                    viewBox="0 0 200 100"
+                    preserveAspectRatio="none"
+                    class="mini-chart"
+                  >
                     <polyline
                       fill="none"
                       stroke="var(--accent-blue)"
@@ -513,7 +606,9 @@
                       points="0,80 20,75 40,60 60,65 80,40 100,45 120,30 140,35 160,20 180,25 200,15"
                     />
                   </svg>
-                  <p class="chart-note">Usage data will appear here when requests are made</p>
+                  <p class="chart-note">
+                    Usage data will appear here when requests are made
+                  </p>
                 </div>
               </div>
             </div>
@@ -530,7 +625,10 @@
                     <span class="breakdown-percent">42%</span>
                   </div>
                   <div class="breakdown-bar">
-                    <div class="breakdown-fill" style="width: 42%; background: var(--accent-blue);"></div>
+                    <div
+                      class="breakdown-fill"
+                      style="width: 42%; background: var(--accent-blue)"
+                    ></div>
                   </div>
                 </div>
                 <div class="breakdown-item">
@@ -539,7 +637,10 @@
                     <span class="breakdown-percent">28%</span>
                   </div>
                   <div class="breakdown-bar">
-                    <div class="breakdown-fill" style="width: 28%; background: var(--accent-purple);"></div>
+                    <div
+                      class="breakdown-fill"
+                      style="width: 28%; background: var(--accent-purple)"
+                    ></div>
                   </div>
                 </div>
                 <div class="breakdown-item">
@@ -548,7 +649,10 @@
                     <span class="breakdown-percent">18%</span>
                   </div>
                   <div class="breakdown-bar">
-                    <div class="breakdown-fill" style="width: 18%; background: var(--accent-green);"></div>
+                    <div
+                      class="breakdown-fill"
+                      style="width: 18%; background: var(--accent-green)"
+                    ></div>
                   </div>
                 </div>
                 <div class="breakdown-item">
@@ -557,7 +661,10 @@
                     <span class="breakdown-percent">12%</span>
                   </div>
                   <div class="breakdown-bar">
-                    <div class="breakdown-fill" style="width: 12%; background: var(--text-muted);"></div>
+                    <div
+                      class="breakdown-fill"
+                      style="width: 12%; background: var(--text-muted)"
+                    ></div>
                   </div>
                 </div>
               </div>
@@ -644,6 +751,198 @@
             </div>
           </div>
         </div>
+
+        <!-- Local Models Page -->
+        <div class="content hidden" id="localModelsPage">
+          <!-- Ollama Status Banner -->
+          <div class="panel local-models-status-panel" id="ollamaStatusBanner">
+            <div class="panel-content" style="display: flex; align-items: center; gap: 1rem; padding: 1rem;">
+              <div class="local-status-icon" id="ollamaStatusIcon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24">
+                  <rect x="4" y="4" width="16" height="16" rx="2" />
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 8v2M12 14v2M8 12h2M14 12h2" />
+                </svg>
+              </div>
+              <div class="local-status-content">
+                <div class="local-status-title" id="ollamaStatusTitle">Checking Ollama...</div>
+                <div class="local-status-message" id="ollamaStatusMessage">Connecting to local Ollama service</div>
+              </div>
+              <div class="local-status-actions">
+                <button class="btn btn-sm btn-secondary" id="refreshLocalModelsBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                    <path d="M23 4v6h-6M1 20v-6h6" />
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                  </svg>
+                  Refresh
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Local Models Grid -->
+          <div class="models-grid" id="localModelsGrid">
+            <!-- Models will be loaded dynamically -->
+            <div class="panel local-model-empty" id="localModelsEmpty">
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+                  <rect x="4" y="4" width="16" height="16" rx="2" />
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 8v2M12 14v2M8 12h2M14 12h2" />
+                </svg>
+                <h3>No Local Models</h3>
+                <p>Install models with Ollama to use local inference</p>
+                <code>ollama pull llama3.2</code>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Pull Section -->
+          <div class="panel local-models-pull-panel">
+            <div class="panel-header">
+              <h3>Popular Models</h3>
+              <span class="tag tag-info">Quick Install</span>
+            </div>
+            <div class="panel-content">
+              <div class="popular-models-grid">
+                <button class="popular-model-btn" data-model="llama3.2">
+                  <span class="model-name">Llama 3.2</span>
+                  <span class="model-size">3B / 8B</span>
+                </button>
+                <button class="popular-model-btn" data-model="qwen2.5">
+                  <span class="model-name">Qwen 2.5</span>
+                  <span class="model-size">7B / 14B</span>
+                </button>
+                <button class="popular-model-btn" data-model="mistral">
+                  <span class="model-name">Mistral</span>
+                  <span class="model-size">7B</span>
+                </button>
+                <button class="popular-model-btn" data-model="deepseek-coder">
+                  <span class="model-name">DeepSeek Coder</span>
+                  <span class="model-size">6.7B</span>
+                </button>
+                <button class="popular-model-btn" data-model="phi3">
+                  <span class="model-name">Phi-3</span>
+                  <span class="model-size">3.8B</span>
+                </button>
+                <button class="popular-model-btn" data-model="gemma2">
+                  <span class="model-name">Gemma 2</span>
+                  <span class="model-size">2B / 9B</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Page -->
+        <div class="content hidden" id="settingsPage">
+          <div class="settings-grid">
+            <!-- Budget Configuration -->
+            <div class="panel">
+              <div class="panel-header">
+                <h2>Budget Configuration</h2>
+                <span class="badge" id="budgetEnforcement">Advisory</span>
+              </div>
+              <div class="settings-form" id="budgetForm">
+                <div class="form-group">
+                  <label for="dailyLimit">Daily Limit ($)</label>
+                  <input type="number" id="dailyLimit" name="daily_limit" step="0.01" min="0" value="10.00" placeholder="10.00">
+                  <small>Set to 0 to disable daily limit</small>
+                </div>
+                <div class="form-group">
+                  <label for="weeklyLimit">Weekly Limit ($)</label>
+                  <input type="number" id="weeklyLimit" name="weekly_limit" step="0.01" min="0" value="50.00" placeholder="50.00">
+                  <small>Set to 0 to disable weekly limit</small>
+                </div>
+                <div class="form-group">
+                  <label for="monthlyLimit">Monthly Limit ($)</label>
+                  <input type="number" id="monthlyLimit" name="monthly_limit" step="0.01" min="0" value="100.00" placeholder="100.00">
+                  <small>Set to 0 to disable monthly limit</small>
+                </div>
+                <div class="form-group">
+                  <label for="alertThreshold">Alert Threshold (%)</label>
+                  <input type="range" id="alertThreshold" name="alert_threshold" min="50" max="100" value="80">
+                  <div class="range-labels">
+                    <span>50%</span>
+                    <span id="alertThresholdValue">80%</span>
+                    <span>100%</span>
+                  </div>
+                  <small>Show warning when spending reaches this percentage</small>
+                </div>
+                <div class="form-group">
+                  <label class="toggle-label">
+                    <input type="checkbox" id="hardLimit" name="hard_limit">
+                    <span class="toggle-switch"></span>
+                    <span>Hard Limit (Block requests when exceeded)</span>
+                  </label>
+                  <small>When enabled, requests will be rejected if budget is exceeded</small>
+                </div>
+                <div class="form-actions">
+                  <button type="button" class="btn btn-primary" id="saveBudgetBtn">
+                    Save Changes
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Current Spending -->
+            <div class="panel">
+              <div class="panel-header">
+                <h2>Current Spending</h2>
+                <button class="btn btn-sm btn-ghost" id="refreshBudgetBtn">Refresh</button>
+              </div>
+              <div class="spending-cards" id="spendingCards">
+                <div class="spending-card">
+                  <div class="spending-card-header">
+                    <span class="spending-card-label">Daily</span>
+                    <span class="spending-card-status ok" id="dailyStatus">OK</span>
+                  </div>
+                  <div class="spending-card-value">
+                    <span id="dailySpend">$0.00</span>
+                    <span class="spending-card-limit">/ <span id="dailyLimitDisplay">$10.00</span></span>
+                  </div>
+                  <div class="spending-bar">
+                    <div class="spending-fill" id="dailyFill" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="spending-card">
+                  <div class="spending-card-header">
+                    <span class="spending-card-label">Weekly</span>
+                    <span class="spending-card-status ok" id="weeklyStatus">OK</span>
+                  </div>
+                  <div class="spending-card-value">
+                    <span id="weeklySpend">$0.00</span>
+                    <span class="spending-card-limit">/ <span id="weeklyLimitDisplay">$50.00</span></span>
+                  </div>
+                  <div class="spending-bar">
+                    <div class="spending-fill" id="weeklyFill" style="width: 0%"></div>
+                  </div>
+                </div>
+                <div class="spending-card">
+                  <div class="spending-card-header">
+                    <span class="spending-card-label">Monthly</span>
+                    <span class="spending-card-status ok" id="monthlyStatus">OK</span>
+                  </div>
+                  <div class="spending-card-value">
+                    <span id="monthlySpend">$0.00</span>
+                    <span class="spending-card-limit">/ <span id="monthlyLimitDisplay">$100.00</span></span>
+                  </div>
+                  <div class="spending-bar">
+                    <div class="spending-fill" id="monthlyFill" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="spending-alert" id="spendingAlert" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <span id="spendingAlertText">Budget warning message</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
     <!-- Add Model Modal -->
@@ -651,38 +950,83 @@
       <div class="modal">
         <div class="modal-header">
           <h3>Add Custom Model</h3>
-          <button class="modal-close" id="closeModalBtn" aria-label="Close modal">&times;</button>
+          <button
+            class="modal-close"
+            id="closeModalBtn"
+            aria-label="Close modal"
+          >
+            &times;
+          </button>
         </div>
         <form id="addModelForm">
           <div class="form-group">
             <label for="modelName">Model Name *</label>
-            <input type="text" id="modelName" name="model_name" required placeholder="e.g., ollama/llama3 or local/my-model">
+            <input
+              type="text"
+              id="modelName"
+              name="model_name"
+              required
+              placeholder="e.g., ollama/llama3 or local/my-model"
+            />
             <small>Unique identifier for your model</small>
           </div>
           <div class="form-group">
             <label for="costPerMillion">Cost per Million Tokens ($) *</label>
-            <input type="number" id="costPerMillion" name="cost_per_million" required step="0.01" min="0" value="0" placeholder="0.00">
+            <input
+              type="number"
+              id="costPerMillion"
+              name="cost_per_million"
+              required
+              step="0.01"
+              min="0"
+              value="0"
+              placeholder="0.00"
+            />
             <small>Set to 0 for free/local models</small>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label for="latencyMs">Latency (ms)</label>
-              <input type="number" id="latencyMs" name="latency_ms" step="1" min="0" placeholder="100">
+              <input
+                type="number"
+                id="latencyMs"
+                name="latency_ms"
+                step="1"
+                min="0"
+                placeholder="100"
+              />
               <small>Average response time</small>
             </div>
             <div class="form-group">
               <label for="contextLength">Context Length</label>
-              <input type="number" id="contextLength" name="context_length" step="1" min="1" placeholder="8192">
+              <input
+                type="number"
+                id="contextLength"
+                name="context_length"
+                step="1"
+                min="1"
+                placeholder="8192"
+              />
               <small>Max tokens</small>
             </div>
           </div>
           <div class="form-group">
             <label for="qualityRating">Quality Rating (0-2000)</label>
-            <input type="number" id="qualityRating" name="quality_rating" step="1" min="0" max="2000" placeholder="1200">
+            <input
+              type="number"
+              id="qualityRating"
+              name="quality_rating"
+              step="1"
+              min="0"
+              max="2000"
+              placeholder="1200"
+            />
             <small>Optional ELO-style quality score</small>
           </div>
           <div class="form-actions">
-            <button type="button" class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+            <button type="button" class="btn btn-secondary" id="cancelModalBtn">
+              Cancel
+            </button>
             <button type="submit" class="btn btn-primary">Add Model</button>
           </div>
         </form>

@@ -521,3 +521,224 @@ async def get_analytics_models(
         "models": default_collector.get_model_breakdown(period_hours),
     }
 
+
+# --- Budget Management Endpoints ---
+
+class BudgetUpdateRequest(BaseModel):
+    """Request to update budget configuration."""
+    daily_limit: float | None = Field(None, ge=0, description="Daily spending limit in USD")
+    weekly_limit: float | None = Field(None, ge=0, description="Weekly spending limit in USD")
+    monthly_limit: float | None = Field(None, ge=0, description="Monthly spending limit in USD")
+    alert_threshold: float | None = Field(None, ge=0, le=1, description="Alert at this percentage of limit (0.0-1.0)")
+    hard_limit: bool | None = Field(None, description="Block requests when budget exceeded")
+
+
+@router.get("/budget")
+async def get_budget_status():
+    """
+    Get current budget status including limits, spending, and alerts.
+    
+    Returns:
+        - config: Current budget limits and settings
+        - spend: Current spending for each period
+        - enforcement: 'hard' (blocks requests) or 'advisory' (warnings only)
+    """
+    from orchestrator.analytics import default_budget_manager, default_collector
+    
+    # Ensure budget manager is initialized with storage
+    if not default_budget_manager._initialized:
+        if default_collector.storage:
+            default_budget_manager.initialize(default_collector.storage)
+    
+    return default_budget_manager.get_budget_status()
+
+
+@router.put("/budget")
+async def update_budget(request: BudgetUpdateRequest):
+    """
+    Update budget configuration.
+    
+    All limits are in USD. Set to 0 to disable a limit.
+    """
+    from orchestrator.analytics import default_budget_manager, default_collector
+    
+    # Ensure budget manager is initialized
+    if not default_budget_manager._initialized:
+        if default_collector.storage:
+            default_budget_manager.initialize(default_collector.storage)
+    
+    updated_config = default_budget_manager.update_config(
+        daily_limit=request.daily_limit,
+        weekly_limit=request.weekly_limit,
+        monthly_limit=request.monthly_limit,
+        alert_threshold=request.alert_threshold,
+        hard_limit=request.hard_limit,
+    )
+    
+    return {
+        "success": True,
+        "message": "Budget configuration updated",
+        "config": updated_config.to_dict(),
+    }
+
+
+@router.get("/budget/check")
+async def check_budget_allowed(estimated_cost: float = Query(default=0.0, ge=0)):
+    """
+    Check if a request with the given estimated cost would be allowed.
+    
+    Only relevant when hard_limit is enabled.
+    """
+    from orchestrator.analytics import default_budget_manager, default_collector
+    
+    if not default_budget_manager._initialized:
+        if default_collector.storage:
+            default_budget_manager.initialize(default_collector.storage)
+    
+    allowed, reason = default_budget_manager.check_budget_allowed(estimated_cost)
+    
+    return {
+        "allowed": allowed,
+        "reason": reason,
+        "estimated_cost": estimated_cost,
+        "hard_limit_enabled": default_budget_manager.config.hard_limit,
+    }
+
+
+# --- Local Models (Ollama) Endpoints ---
+
+@router.get("/local-models")
+async def get_local_models():
+    """
+    Get list of locally installed Ollama models.
+    
+    Returns:
+        - models: List of local models with metadata
+        - available: Whether Ollama service is running
+        - host: Ollama API host URL
+    """
+    from orchestrator.adapters import default_ollama_adapter
+    
+    # Fetch latest models
+    data = await default_ollama_adapter.fetch_data()
+    models = default_ollama_adapter.parse_response(data)
+    cached_models = default_ollama_adapter.get_cached_models()
+    
+    return {
+        "models": [
+            {
+                "name": m.name,
+                "display_name": m.display_name,
+                "family": m.family,
+                "parameter_size": m.parameter_size,
+                "quantization": m.quantization,
+                "size_gb": round(m.size_gb, 2),
+                "cost": 0.0,  # Local models are free
+            }
+            for m in cached_models
+        ],
+        "available": default_ollama_adapter.is_available,
+        "host": default_ollama_adapter.host,
+        "model_count": len(cached_models),
+    }
+
+
+@router.get("/local-models/status")
+async def get_local_models_status():
+    """
+    Check if Ollama service is running and accessible.
+    
+    Returns:
+        - available: Whether Ollama is reachable
+        - host: Configured Ollama host
+    """
+    from orchestrator.adapters import default_ollama_adapter
+    
+    available = await default_ollama_adapter.check_connection()
+    
+    return {
+        "available": available,
+        "host": default_ollama_adapter.host,
+        "message": "Ollama is running" if available else "Ollama is not accessible",
+    }
+
+
+@router.post("/local-models/refresh")
+async def refresh_local_models():
+    """
+    Refresh the list of local models from Ollama.
+    
+    Triggers a resync from the Ollama API.
+    """
+    from orchestrator.adapters import default_ollama_adapter
+    
+    data = await default_ollama_adapter.fetch_data()
+    metrics = default_ollama_adapter.parse_response(data)
+    models = default_ollama_adapter.get_cached_models()
+    
+    return {
+        "success": True,
+        "message": f"Discovered {len(models)} local models",
+        "models": [m.name for m in models],
+    }
+
+
+class LocalChatRequest(BaseModel):
+    """Request for local model chat completion."""
+    model: str = Field(..., description="Ollama model name")
+    messages: list[dict] = Field(..., description="Chat messages")
+    temperature: float = Field(0.7, ge=0, le=2)
+    max_tokens: int | None = Field(None, ge=1)
+
+
+@router.post("/local-models/chat")
+async def local_model_chat(request: LocalChatRequest):
+    """
+    Chat with a local Ollama model.
+    
+    Direct interface to Ollama without going through the routing system.
+    Useful for testing local models.
+    """
+    from orchestrator.adapters import default_ollama_adapter
+    
+    # Check if Ollama is available
+    if not await default_ollama_adapter.check_connection():
+        raise HTTPException(
+            status_code=503,
+            detail="Ollama service is not available. Please ensure Ollama is running."
+        )
+    
+    # Make chat request
+    start_time = time.time()
+    response = await default_ollama_adapter.chat(
+        model=request.model,
+        messages=request.messages,
+        options={
+            "temperature": request.temperature,
+            **({"num_predict": request.max_tokens} if request.max_tokens else {}),
+        }
+    )
+    elapsed_ms = (time.time() - start_time) * 1000
+    
+    if "error" in response:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Ollama error: {response['error']}"
+        )
+    
+    # Format response similar to OpenAI format
+    message = response.get("message", {})
+    
+    return {
+        "model": request.model,
+        "message": {
+            "role": message.get("role", "assistant"),
+            "content": message.get("content", ""),
+        },
+        "done": response.get("done", True),
+        "total_duration_ms": response.get("total_duration", 0) / 1000000,  # ns to ms
+        "load_duration_ms": response.get("load_duration", 0) / 1000000,
+        "eval_count": response.get("eval_count", 0),
+        "latency_ms": round(elapsed_ms, 2),
+        "cost": 0.0,  # Local inference is free
+    }

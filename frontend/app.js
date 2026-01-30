@@ -9,7 +9,7 @@ const isGitHubPages = window.location.hostname.includes('github.io');
 const isDocker = window.location.port === '3000' || window.location.pathname.startsWith('/api');
 
 // For local development, try the API first
-const LOCAL_API_URL = 'http://localhost:8080';
+const LOCAL_API_URL = 'http://localhost:8082';
 const DOCKER_API_URL = '/api';
 
 // Detect which API to use
@@ -786,3 +786,388 @@ function showNotification(message, type = 'info') {
         setTimeout(() => notification.remove(), 200);
     }, 4000);
 }
+
+// ===== Budget Management =====
+
+// Demo budget data for GitHub Pages
+const DEMO_BUDGET = {
+    config: {
+        daily_limit: 10.0,
+        weekly_limit: 50.0,
+        monthly_limit: 100.0,
+        alert_threshold: 0.8,
+        hard_limit: false
+    },
+    spend: {
+        daily_spend: 3.45,
+        weekly_spend: 18.72,
+        monthly_spend: 45.80,
+        daily_remaining: 6.55,
+        weekly_remaining: 31.28,
+        monthly_remaining: 54.20,
+        daily_percent: 34.5,
+        weekly_percent: 37.4,
+        monthly_percent: 45.8
+    },
+    status: 'ok',
+    status_message: 'All spending within limits',
+    enforcement: 'advisory'
+};
+
+async function loadBudgetStatus() {
+    let budgetData;
+    
+    if (DEMO_MODE) {
+        await new Promise(r => setTimeout(r, 300));
+        budgetData = DEMO_BUDGET;
+    } else {
+        budgetData = await fetchAPI('/v1/budget');
+    }
+    
+    if (!budgetData) return;
+    
+    // Update budget widget in header
+    updateBudgetWidget(budgetData);
+    
+    // Update settings page if visible
+    if (state.currentPage === 'settings') {
+        updateBudgetSettings(budgetData);
+    }
+}
+
+function updateBudgetWidget(data) {
+    const widget = document.getElementById('budgetWidget');
+    const valueEl = document.getElementById('budgetWidgetValue');
+    const fillEl = document.getElementById('budgetWidgetFill');
+    
+    if (!widget || !valueEl || !fillEl) return;
+    
+    const spend = data.spend || {};
+    const dailySpend = spend.daily_spend || 0;
+    const dailyPercent = spend.daily_percent || 0;
+    
+    valueEl.textContent = `$${dailySpend.toFixed(2)}`;
+    fillEl.style.width = `${Math.min(dailyPercent, 100)}%`;
+    
+    // Update status classes
+    widget.classList.remove('warning', 'exceeded');
+    if (data.status === 'exceeded') {
+        widget.classList.add('exceeded');
+    } else if (data.status === 'warning') {
+        widget.classList.add('warning');
+    }
+    
+    // Click handler to go to settings
+    widget.onclick = () => navigateTo('settings');
+}
+
+function updateBudgetSettings(data) {
+    const config = data.config || {};
+    const spend = data.spend || {};
+    
+    // Update form fields
+    const dailyLimitInput = document.getElementById('dailyLimit');
+    const weeklyLimitInput = document.getElementById('weeklyLimit');
+    const monthlyLimitInput = document.getElementById('monthlyLimit');
+    const alertThresholdInput = document.getElementById('alertThreshold');
+    const hardLimitInput = document.getElementById('hardLimit');
+    
+    if (dailyLimitInput) dailyLimitInput.value = config.daily_limit || 10;
+    if (weeklyLimitInput) weeklyLimitInput.value = config.weekly_limit || 50;
+    if (monthlyLimitInput) monthlyLimitInput.value = config.monthly_limit || 100;
+    if (alertThresholdInput) {
+        alertThresholdInput.value = (config.alert_threshold || 0.8) * 100;
+        document.getElementById('alertThresholdValue').textContent = `${Math.round((config.alert_threshold || 0.8) * 100)}%`;
+    }
+    if (hardLimitInput) hardLimitInput.checked = config.hard_limit || false;
+    
+    // Update enforcement badge
+    const enforcementBadge = document.getElementById('budgetEnforcement');
+    if (enforcementBadge) {
+        enforcementBadge.textContent = config.hard_limit ? 'Hard Limit' : 'Advisory';
+        enforcementBadge.style.background = config.hard_limit ? 'rgba(239, 68, 68, 0.15)' : 'rgba(59, 130, 246, 0.15)';
+        enforcementBadge.style.color = config.hard_limit ? 'var(--accent-red)' : 'var(--accent-blue)';
+    }
+    
+    // Update spending cards
+    updateSpendingCard('daily', spend.daily_spend, config.daily_limit, spend.daily_percent, data.status);
+    updateSpendingCard('weekly', spend.weekly_spend, config.weekly_limit, spend.weekly_percent, data.status);
+    updateSpendingCard('monthly', spend.monthly_spend, config.monthly_limit, spend.monthly_percent, data.status);
+    
+    // Update alert
+    const alertEl = document.getElementById('spendingAlert');
+    const alertTextEl = document.getElementById('spendingAlertText');
+    if (alertEl) {
+        if (data.status === 'warning' || data.status === 'exceeded') {
+            alertEl.style.display = 'flex';
+            alertTextEl.textContent = data.status_message;
+            alertEl.classList.toggle('exceeded', data.status === 'exceeded');
+        } else {
+            alertEl.style.display = 'none';
+        }
+    }
+}
+
+function updateSpendingCard(period, spend, limit, percent, status) {
+    const spendEl = document.getElementById(`${period}Spend`);
+    const limitEl = document.getElementById(`${period}LimitDisplay`);
+    const fillEl = document.getElementById(`${period}Fill`);
+    const statusEl = document.getElementById(`${period}Status`);
+    
+    if (spendEl) spendEl.textContent = `$${(spend || 0).toFixed(2)}`;
+    if (limitEl) limitEl.textContent = `$${(limit || 0).toFixed(2)}`;
+    if (fillEl) {
+        fillEl.style.width = `${Math.min(percent || 0, 100)}%`;
+        fillEl.classList.remove('warning', 'exceeded');
+        if (percent >= 100) {
+            fillEl.classList.add('exceeded');
+        } else if (percent >= 80) {
+            fillEl.classList.add('warning');
+        }
+    }
+    if (statusEl) {
+        statusEl.classList.remove('ok', 'warning', 'exceeded');
+        if (percent >= 100) {
+            statusEl.textContent = 'EXCEEDED';
+            statusEl.classList.add('exceeded');
+        } else if (percent >= 80) {
+            statusEl.textContent = 'WARNING';
+            statusEl.classList.add('warning');
+        } else {
+            statusEl.textContent = 'OK';
+            statusEl.classList.add('ok');
+        }
+    }
+}
+
+async function saveBudgetSettings() {
+    const dailyLimit = parseFloat(document.getElementById('dailyLimit').value) || 0;
+    const weeklyLimit = parseFloat(document.getElementById('weeklyLimit').value) || 0;
+    const monthlyLimit = parseFloat(document.getElementById('monthlyLimit').value) || 0;
+    const alertThreshold = (parseFloat(document.getElementById('alertThreshold').value) || 80) / 100;
+    const hardLimit = document.getElementById('hardLimit').checked;
+    
+    if (DEMO_MODE) {
+        showNotification('Budget settings updated (demo mode)', 'success');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/v1/budget`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                daily_limit: dailyLimit,
+                weekly_limit: weeklyLimit,
+                monthly_limit: monthlyLimit,
+                alert_threshold: alertThreshold,
+                hard_limit: hardLimit
+            })
+        });
+        
+        if (response.ok) {
+            showNotification('Budget settings saved successfully!', 'success');
+            loadBudgetStatus();
+        } else {
+            showNotification('Failed to save budget settings', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving budget:', error);
+        showNotification('Error saving budget settings', 'error');
+    }
+}
+
+async function loadSettings() {
+    await loadBudgetStatus();
+}
+
+// Initialize settings page event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    // Settings page elements
+    const settingsPage = document.getElementById('settingsPage');
+    if (settingsPage) {
+        elements.pages.settings = settingsPage;
+    }
+    
+    // Save budget button
+    const saveBudgetBtn = document.getElementById('saveBudgetBtn');
+    if (saveBudgetBtn) {
+        saveBudgetBtn.addEventListener('click', saveBudgetSettings);
+    }
+    
+    // Refresh budget button
+    const refreshBudgetBtn = document.getElementById('refreshBudgetBtn');
+    if (refreshBudgetBtn) {
+        refreshBudgetBtn.addEventListener('click', () => {
+            loadBudgetStatus();
+            showToast('Budget data refreshed');
+        });
+    }
+    
+    // Alert threshold slider
+    const alertThreshold = document.getElementById('alertThreshold');
+    if (alertThreshold) {
+        alertThreshold.addEventListener('input', (e) => {
+            document.getElementById('alertThresholdValue').textContent = `${e.target.value}%`;
+        });
+    }
+    
+    // Budget widget click
+    const budgetWidget = document.getElementById('budgetWidget');
+    if (budgetWidget) {
+        budgetWidget.addEventListener('click', () => navigateTo('settings'));
+    }
+    
+    // Load budget status on page load
+    loadBudgetStatus();
+});
+
+// Update navigation to include settings
+const originalNavigateTo = navigateTo;
+navigateTo = function(page) {
+    // Update nav
+    elements.navItems.forEach(item => {
+        item.classList.toggle('active', item.dataset.page === page);
+    });
+    
+    // Update pages
+    Object.entries(elements.pages).forEach(([key, el]) => {
+        if (el) el.classList.toggle('hidden', key !== page);
+    });
+    
+    // Update title
+    const titles = {
+        dashboard: 'Dashboard',
+        models: 'Models',
+        routing: 'Routing',
+        analytics: 'Analytics',
+        playground: 'Playground',
+        'local-models': 'Local Models',
+        settings: 'Settings',
+    };
+    elements.pageTitle.textContent = titles[page] || page;
+    
+    state.currentPage = page;
+    
+    // Load page data
+    if (page === 'models') loadModels();
+    if (page === 'routing') loadRouting();
+    if (page === 'analytics') loadAnalytics();
+    if (page === 'local-models') loadLocalModels();
+    if (page === 'settings') loadSettings();
+};
+
+// --- Local Models Functions ---
+
+async function loadLocalModels() {
+    const statusIcon = document.getElementById('ollamaStatusIcon');
+    const statusTitle = document.getElementById('ollamaStatusTitle');
+    const statusMessage = document.getElementById('ollamaStatusMessage');
+    const modelsGrid = document.getElementById('localModelsGrid');
+    const emptyState = document.getElementById('localModelsEmpty');
+    
+    try {
+        // First check status
+        const statusData = await fetchAPI('/v1/local-models/status');
+        
+        if (statusData?.available) {
+            statusIcon?.classList.remove('offline');
+            statusIcon?.classList.add('available');
+            statusTitle.textContent = 'Ollama Running';
+            statusMessage.textContent = `Connected to ${statusData.host}`;
+        } else {
+            statusIcon?.classList.remove('available');
+            statusIcon?.classList.add('offline');
+            statusTitle.textContent = 'Ollama Offline';
+            statusMessage.textContent = statusData?.message || 'Start Ollama to use local models';
+            emptyState.style.display = 'block';
+            return;
+        }
+        
+        // Fetch models
+        const data = await fetchAPI('/v1/local-models');
+        
+        if (!data || !data.models || data.models.length === 0) {
+            emptyState.style.display = 'block';
+            return;
+        }
+        
+        emptyState.style.display = 'none';
+        
+        // Render model cards
+        const existingCards = modelsGrid.querySelectorAll('.local-model-card');
+        existingCards.forEach(card => card.remove());
+        
+        data.models.forEach(model => {
+            const card = renderLocalModelCard(model);
+            modelsGrid.insertBefore(card, emptyState);
+        });
+        
+    } catch (error) {
+        console.error('Error loading local models:', error);
+        statusIcon?.classList.remove('available');
+        statusIcon?.classList.add('offline');
+        statusTitle.textContent = 'Connection Error';
+        statusMessage.textContent = 'Could not connect to API';
+    }
+}
+
+function renderLocalModelCard(model) {
+    const card = document.createElement('div');
+    card.className = 'panel local-model-card';
+    
+    card.innerHTML = `
+        <div class="model-header">
+            <span class="model-name">${model.display_name || model.name}</span>
+            <span class="tag-local">LOCAL</span>
+            <span class="tag-free">FREE</span>
+        </div>
+        <div class="model-meta">
+            ${model.family ? `<span>Family: ${model.family}</span>` : ''}
+            ${model.parameter_size ? `<span>Size: ${model.parameter_size}</span>` : ''}
+            ${model.quantization ? `<span>Quant: ${model.quantization}</span>` : ''}
+            <span>${model.size_gb?.toFixed(1) || '?'} GB</span>
+        </div>
+        <div class="model-actions">
+            <button class="btn btn-sm btn-primary" onclick="testLocalModel('${model.name}')">
+                Test
+            </button>
+        </div>
+    `;
+    
+    return card;
+}
+
+async function testLocalModel(modelName) {
+    try {
+        const response = await fetchAPI('/v1/local-models/chat', {
+            method: 'POST',
+            body: JSON.stringify({
+                model: modelName,
+                messages: [{ role: 'user', content: 'Say hello in one sentence.' }],
+                temperature: 0.7
+            })
+        });
+        
+        if (response?.message?.content) {
+            alert(`Response from ${modelName}:\n\n${response.message.content}`);
+        } else {
+            alert('No response received');
+        }
+    } catch (error) {
+        alert(`Error testing model: ${error.message}`);
+    }
+}
+
+// Event listeners for Local Models page
+document.getElementById('refreshLocalModelsBtn')?.addEventListener('click', () => {
+    loadLocalModels();
+});
+
+// Popular model buttons
+document.querySelectorAll('.popular-model-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const modelName = btn.dataset.model;
+        alert(`To install ${modelName}, run:\n\nollama pull ${modelName}`);
+    });
+});
