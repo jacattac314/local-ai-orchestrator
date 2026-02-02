@@ -1,13 +1,36 @@
 # Local AI Orchestrator
-[Prorotype](https://jacattac314.github.io/local-ai-orchestrator/)
 
-> **Intelligent model routing with quality, latency, and cost optimization.**  
+> **Intelligent model routing with quality, latency, and cost optimization.**
 > Abstract away LLM provider complexity. Route to the right model, every time.
 
 [![Build Status](https://github.com/jacattac314/local-ai-orchestrator/actions/workflows/ci.yml/badge.svg)](https://github.com/jacattac314/local-ai-orchestrator/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Typed: mypy](https://img.shields.io/badge/typed-mypy-blue.svg)](http://mypy-lang.org/)
+
+### [View Live Demo](https://jacattac314.github.io/local-ai-orchestrator/)
+
+---
+
+## For Hiring Managers
+
+**This project demonstrates production-grade software engineering practices:**
+
+| Skill | Evidence |
+|-------|----------|
+| **System Design** | Multi-source data aggregation, circuit breaker pattern, fallback chains |
+| **API Design** | OpenAI-compatible REST API, consistent error handling, Pydantic validation |
+| **Data Engineering** | Entity resolution across disparate sources, scheduled background sync |
+| **Production Readiness** | Docker, Kubernetes manifests, health checks, observability hooks |
+| **Testing Strategy** | Canary tests for CI, integration tests, performance markers |
+| **Code Quality** | Full type hints, dataclasses, clean separation of concerns |
+
+**Technical Decisions Worth Discussing:**
+- Privacy-first architecture: routing decisions happen locally, prompts never leave your infrastructure
+- Multi-source benchmarks: combines quality (LMSYS), cost (OpenRouter), and metadata (HuggingFace)
+- Circuit breaker pattern: prevents cascade failures when providers are degraded
+- Flexible persistence: SQLite for zero-config development, PostgreSQL for production
 
 ---
 
@@ -280,17 +303,17 @@ See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for detailed instructions.
 
 ## Roadmap
 
-### v0.2.0 — Q1 2025
-- [ ] Redis distributed caching
+### v0.2.0 — Q1 2026
+- [x] Redis distributed caching
 - [ ] Request quota management
 - [ ] WebSocket streaming support
 
-### v0.3.0 — Q2 2025
+### v0.3.0 — Q2 2026
 - [ ] A/B testing framework
 - [ ] Custom adapter plugin system
 - [ ] GraphQL endpoint
 
-### v1.0.0 — Q3 2025
+### v1.0.0 — Q3 2026
 - [ ] Production SLA guarantees
 - [ ] Multi-tenant support
 - [ ] Enterprise observability integrations
@@ -353,34 +376,3 @@ MIT License — see [LICENSE](LICENSE) for details.
 - [LMSYS](https://chat.lmsys.org/) for benchmark data
 - [HuggingFace](https://huggingface.co/) for model metadata
 
----
-
-<details>
-<summary><strong>📋 For Hiring Managers</strong></summary>
-
-### What This Project Demonstrates
-
-| Skill | Evidence |
-|-------|----------|
-| **System Design** | Multi-source aggregation, circuit breaker pattern, fallback chains |
-| **API Design** | OpenAI-compatible REST API, consistent error handling |
-| **Data Engineering** | Entity resolution across disparate sources, scheduled sync |
-| **Production Readiness** | Docker, Kubernetes manifests, health checks, observability hooks |
-| **Testing Strategy** | Canary tests for CI, integration tests, performance markers |
-| **Code Quality** | Type hints, dataclasses, clean separation of concerns |
-
-### Technical Decisions Worth Noting
-
-1. **Why local routing?** Privacy-first design prevents prompt leakage to third-party services
-2. **Why multi-source benchmarks?** No single source provides complete quality + cost + latency data
-3. **Why circuit breakers?** Prevents cascade failures when providers are degraded
-4. **Why SQLite default?** Zero-config development; PostgreSQL for production
-
-### Questions I Can Discuss
-
-- Tradeoffs in model scoring algorithms
-- Scaling patterns for high-throughput routing
-- Observability strategies for ML systems
-- Cost optimization in LLM-heavy applications
-
-</details>
