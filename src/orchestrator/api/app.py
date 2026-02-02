@@ -14,7 +14,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from orchestrator.api.routes import router as api_router
+from orchestrator.api.streaming_routes import router as streaming_router
 from orchestrator.config import settings
+from orchestrator.streaming import default_connection_manager
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +26,13 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Application lifespan events."""
     # Startup
     logger.info("Starting AI Orchestrator API...")
+    await default_connection_manager.start()
+    logger.info("WebSocket connection manager started")
     yield
     # Shutdown
     logger.info("Shutting down AI Orchestrator API...")
+    await default_connection_manager.stop()
+    logger.info("WebSocket connection manager stopped")
 
 
 def create_app() -> FastAPI:
@@ -64,6 +70,7 @@ def create_app() -> FastAPI:
 
     # Include API routes
     app.include_router(api_router, prefix="/v1")
+    app.include_router(streaming_router, prefix="/v1", tags=["streaming"])
 
     # Health check
     @app.get("/health")
