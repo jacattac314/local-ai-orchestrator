@@ -1,5 +1,5 @@
 # Local AI Orchestrator
-
+[Prorotype]((https://jacattac314.github.io/local-ai-orchestrator/))
 > **Intelligent model routing with quality, latency, and cost optimization.**  
 > Abstract away LLM provider complexity. Route to the right model, every time.
 
