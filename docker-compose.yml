@@ -21,6 +21,10 @@ services:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - API_KEY=${API_KEY:-}
       - OFFLINE_MODE_ENABLED=${OFFLINE_MODE_ENABLED:-true}
+      # Redis configuration
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CACHE_BACKEND=${CACHE_BACKEND:-redis}
+      - REDIS_TTL_SECONDS=${REDIS_TTL_SECONDS:-3600}
     volumes:
       - orchestrator-data:/app/data
     healthcheck:
@@ -29,6 +33,30 @@ services:
       timeout: 10s
       retries: 3
       start_period: 10s
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - orchestrator-net
+
+  # ---------------------------------------------------------------------------
+  # Redis Cache Service
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: ai-orchestrator-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
     networks:
       - orchestrator-net
 
@@ -55,6 +83,8 @@ services:
 # -----------------------------------------------------------------------------
 volumes:
   orchestrator-data:
+    driver: local
+  redis-data:
     driver: local
 
 # -----------------------------------------------------------------------------
