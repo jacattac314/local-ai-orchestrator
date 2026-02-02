@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     redis_prefix: str = "orchestrator:"  # Key prefix for namespacing
     cache_backend: str = "memory"  # Cache backend: "memory" or "redis"
 
+    # Quota / Rate Limiting
+    quota_enabled: bool = True  # Enable quota enforcement
+    quota_requests_per_minute: int = 60  # Max requests per minute
+    quota_requests_per_hour: int = 1000  # Max requests per hour
+    quota_requests_per_day: int = 10000  # Max requests per day
+
     @property
     def data_dir(self) -> Path:
         """Get the data directory path."""
