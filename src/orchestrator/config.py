@@ -53,6 +53,12 @@ class Settings(BaseSettings):
     metric_retention_days: int = 30  # Days to keep metrics before pruning
     data_pruning_interval: int = 1440  # Run pruning job every 24 hours (minutes)
 
+    # Redis Cache
+    redis_url: str | None = None  # Redis connection URL (e.g., redis://localhost:6379/0)
+    redis_ttl_seconds: int = 3600  # Default cache TTL (1 hour)
+    redis_prefix: str = "orchestrator:"  # Key prefix for namespacing
+    cache_backend: str = "memory"  # Cache backend: "memory" or "redis"
+
     @property
     def data_dir(self) -> Path:
         """Get the data directory path."""
